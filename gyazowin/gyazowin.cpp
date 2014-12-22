@@ -773,7 +773,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	DWORD dwFlags;	// フラグ
 
 	// アップロード確認
-	if (g_Settings.count(L"up_dialog") && g_Settings[L"up_dialog"] == L"yes") {
+	if (g_Settings.count(L"up_dialog") && g_Settings[L"up_dialog"] == L"true") {
 		if (MessageBox(hwnd,_T("アップロードしますか？"),_T("Question"),MB_OK|MB_ICONQUESTION|MB_YESNO) != IDYES) {
 			return TRUE;
 		}
@@ -839,7 +839,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	}
 
 	// 認証データ準備
-	if (g_Settings.count(L"use_auth") && g_Settings[L"use_auth"] == L"yes") {
+	if (g_Settings.count(L"use_auth") && g_Settings[L"use_auth"] == L"true") {
 		if (g_Settings.count(L"auth_id")) {
 			lpwcId = g_Settings[L"auth_id"].c_str();
 		}else{
@@ -866,9 +866,9 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 
 	// SSL
 	dwFlags = INTERNET_FLAG_DONT_CACHE | INTERNET_FLAG_RELOAD;
-	if (g_Settings.count(L"use_ssl") && g_Settings[L"use_ssl"] == L"yes") {
+	if (g_Settings.count(L"use_ssl") && g_Settings[L"use_ssl"] == L"true") {
 		dwFlags |= INTERNET_FLAG_SECURE;
-		if (g_Settings.count(L"ssl_check_cert") && g_Settings[L"ssl_check_cert"] == L"no") {
+		if (g_Settings.count(L"ssl_check_cert") && g_Settings[L"ssl_check_cert"] == L"false") {
 			dwFlags |= INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID;
 		}
 	}
@@ -954,15 +954,15 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 			result += '\0';
 
 			// クリップボードに URL をコピー
-			if (g_Settings.count(L"copy_url") && g_Settings[L"copy_url"] == L"yes") {
+			if (g_Settings.count(L"copy_url") && g_Settings[L"copy_url"] == L"true") {
 				setClipBoardText(result.c_str());
-				if (g_Settings.count(L"copy_dialog") && g_Settings[L"copy_dialog"] == L"yes") {
+				if (g_Settings.count(L"copy_dialog") && g_Settings[L"copy_dialog"] == L"true") {
 					MessageBox(hwnd,_T("クリップボードにアドレスをコピーしました"),_T("Info"),MB_OK|MB_ICONINFORMATION);
 				}
 			}
 			
 			// URL を起動
-			if (g_Settings.count(L"open_browser") && g_Settings[L"open_browser"] == L"yes") {
+			if (g_Settings.count(L"open_browser") && g_Settings[L"open_browser"] == L"true") {
 				execUrl(result.c_str());
 			}
 
