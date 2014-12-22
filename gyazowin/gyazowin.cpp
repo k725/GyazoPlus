@@ -920,7 +920,9 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		HttpQueryInfo(hRequest, HTTP_QUERY_STATUS_CODE, resCode, &resLen, 0);
 		if( _ttoi(resCode) != 200 ) {
 			// upload 失敗 (status error)
-			MessageBox(hwnd, _T("Failed to upload (unexpected result code, under maintainance?)"),
+			TCHAR resMessage[128];
+			wsprintf(resMessage, _T("Failed to upload (unexpected result code, under maintainance?)\r\nStatus code : %d"), _ttoi(resCode));
+			MessageBox(hwnd, resMessage,
 				szTitle, MB_ICONERROR | MB_OK);
 		} else {
 			// upload succeeded
