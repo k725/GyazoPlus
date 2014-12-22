@@ -894,7 +894,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	}
 
 	// User-Agentを指定
-	const TCHAR* ua = _T("User-Agent: Gyazowin/1.0\r\n");
+	const TCHAR* ua = _T("User-Agent: GyazoPlus/1.1\r\n");
 	BOOL bResult = HttpAddRequestHeaders(
 		hRequest, ua, _tcslen(ua), 
 		HTTP_ADDREQ_FLAG_ADD | HTTP_ADDREQ_FLAG_REPLACE);
