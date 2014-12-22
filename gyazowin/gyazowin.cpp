@@ -1,14 +1,17 @@
-// gyazowin.cpp : アプリケーションのエントリ ポイントを定義します。
+﻿// gyazowin.cpp : アプリケーションのエントリ ポイントを定義します。
 //
 
 #include "stdafx.h"
 #include "gyazowin.h"
 
+#define INI_FILENAME L"GyazoPlus.ini"
+#define INI_SECTION  L"GyazoPlus"
+
 // グローバル変数:
 HINSTANCE hInst;							// 現在のインターフェイス
-TCHAR *szTitle			= _T("Gyazo+");		// タイトル バーのテキスト
-TCHAR *szWindowClass	= _T("GYAZOWIN");	// メイン ウィンドウ クラス名
-TCHAR *szWindowClassL	= _T("GYAZOWINL");	// レイヤー ウィンドウ クラス名
+TCHAR *szTitle			= _T("GyazoPlus");	// タイトル バーのテキスト
+TCHAR *szWindowClass	= _T("GYAZOPLUS");	// メイン ウィンドウ クラス名
+TCHAR *szWindowClassL	= _T("GYAZOPLUSL");	// レイヤー ウィンドウ クラス名
 HWND hLayerWnd;
 
 int ofX, ofY;	// 画面オフセット
@@ -29,7 +32,6 @@ VOID				setClipBoardText(const char* str);
 BOOL				convertPNG(LPCTSTR destFile, LPCTSTR srcFile);
 BOOL				savePNG(LPCTSTR fileName, HBITMAP newBMP);
 BOOL				uploadFile(HWND hwnd, LPCTSTR fileName);
-std::string			getId();
 std::map<std::wstring, std::wstring> loadSettings(LPCWSTR fileName, LPCWSTR sectionName);
 
 // エントリーポイント
@@ -44,21 +46,15 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	MSG msg;
 
 	TCHAR	szThisPath[MAX_PATH];
-	DWORD   sLen;
 
 	// 自身のディレクトリを取得する
-	sLen = GetModuleFileName(NULL, szThisPath, MAX_PATH);
-	for(unsigned int i = sLen; i >= 0; i--) {
-		if(szThisPath[i] == _T('\\')) {
-			szThisPath[i] = _T('\0');
-			break;
-		}
-	}
+	GetModuleFileName(NULL, szThisPath, MAX_PATH);
+	PathRemoveFileSpec(szThisPath);
 
 	// カレントディレクトリを exe と同じ場所に設定
 	SetCurrentDirectory(szThisPath);
 
-	g_Settings = loadSettings(_T("gyazowin+.ini"), _T("gyazowin+"));
+	g_Settings = loadSettings(INI_FILENAME, INI_SECTION);
 
 	// 引数にファイルが指定されていたら
 	if ( 2 == __argc )
@@ -737,87 +733,21 @@ VOID execUrl(const char* str)
 	free(wcUrl);
 }
 
-// ID を生成・ロードする
-std::string getId()
-{
-
-    TCHAR idFile[_MAX_PATH];
-	TCHAR idDir[_MAX_PATH];
-
-    SHGetSpecialFolderPath( NULL, idFile, CSIDL_APPDATA, FALSE );
-
-	 _tcscat_s( idFile, _T("\\Gyazo"));
-	 _tcscpy_s( idDir, idFile);
-	 _tcscat_s( idFile, _T("\\id.txt"));
-
-	const TCHAR*	 idOldFile			= _T("id.txt");
-	BOOL oldFileExist = FALSE;
-
-	std::string idStr;
-
-	// まずはファイルから ID をロード
-	std::ifstream ifs;
-
-	ifs.open(idFile);
-	if (! ifs.fail()) {
-		// ID を読み込む
-		ifs >> idStr;
-		ifs.close();
-	} else{		
-		std::ifstream ifsold;
-		ifsold.open(idOldFile);
-		if (! ifsold.fail()) {
-			// 同一ディレクトリからID を読み込む(旧バージョンとの互換性)
-			ifsold >> idStr;
-			ifsold.close();
-		}
-	}
-
-	return idStr;
-}
-
 // Save ID
 BOOL saveId(const WCHAR* str)
 {
+	TCHAR wcFilePath[_MAX_PATH];
 
-    TCHAR idFile[_MAX_PATH];
-	TCHAR idDir[_MAX_PATH];
+	GetFullPathName(INI_FILENAME, _MAX_PATH, wcFilePath, NULL);
 
-    SHGetSpecialFolderPath( NULL, idFile, CSIDL_APPDATA, FALSE );
-
-	 _tcscat_s( idFile, _T("\\Gyazo"));
-	 _tcscpy_s( idDir, idFile);
-	 _tcscat_s( idFile, _T("\\id.txt"));
-
-	const TCHAR*	 idOldFile			= _T("id.txt");
-
-	size_t  slen;
-	size_t  dcount;
-	slen  = _tcslen(str) + 1; // NULL
-
-	char *idStr = (char *)malloc(slen * sizeof(char));
-	// バイト文字に変換
-	wcstombs_s(&dcount, idStr, slen, str, slen);
-
-	// ID を保存する
-	CreateDirectory(idDir,NULL);
-	std::ofstream ofs;
-	ofs.open(idFile);
-	if (! ofs.fail()) {
-		ofs << idStr;
-		ofs.close();
-
-		// 旧設定ファイルの削除
-		if (PathFileExists(idOldFile)){
-			DeleteFile(idOldFile);
-		}
-	}else{
-		free(idStr);
+	if (WritePrivateProfileString(INI_SECTION, L"upload_id", str, wcFilePath) != 0)
+	{
+		return TRUE;
+	}
+	else
+	{
 		return FALSE;
 	}
-
-	free(idStr);
-	return TRUE;
 }
 
 // PNG ファイルをアップロードする.
@@ -850,7 +780,9 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	}
 
 	// ID を取得
-	idStr = getId();
+	char gyazoID[128];
+	wcstombs_s(NULL, gyazoID, sizeof(gyazoID), g_Settings[L"upload_id"].c_str(), g_Settings[L"upload_id"].size());
+	idStr = gyazoID;
 
 	// メッセージの構成
 	// -- "id" part
