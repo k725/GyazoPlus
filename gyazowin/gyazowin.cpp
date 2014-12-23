@@ -323,46 +323,6 @@ VOID drawRubberband(HDC hdc, LPRECT newRect, BOOL erase)
 
 	
 	return;
-
-/* rakusai 2009/11/2
-
-	// XOR で描画
-	int hPreRop = SetROP2(hdc, R2_XORPEN);
-
-	// 点線
-	HPEN hPen = CreatePen(PS_DOT , 1, 0);
-	SelectObject(hdc, hPen);
-	SelectObject(hdc, GetStockObject(NULL_BRUSH));
-
-	if(!firstDraw) {
-		// 前のを消す
-		Rectangle(hdc, lastRect.left, lastRect.top, 
-			lastRect.right + 1, lastRect.bottom + 1);
-	} else {
-		firstDraw = FALSE;
-	}
-	
-	// 新しい座標を記憶
-	lastRect = *newRect;
-	
-	
-
-
-	if (!erase) {
-
-		// 枠を描画
-		Rectangle(hdc, lastRect.left, lastRect.top, 
-			lastRect.right + 1, lastRect.bottom + 1);
-
-	}
-
-
-	// 後処理
-	SetROP2(hdc, hPreRop);
-	DeleteObject(hPen);
-
-*/
-
 }
 
 // PNG 形式に変換
@@ -615,17 +575,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			
 			// ウィンドウを隠す!
 			ShowWindow(hWnd, SW_HIDE);
-			/*
-			// 画像をクリップボードにコピー
-			if ( OpenClipboard(hWnd) ) {
-				// 消去
-				EmptyClipboard();
-				// セット
-				SetClipboardData(CF_BITMAP, newBMP);
-				// 閉じる
-				CloseClipboard();
-			}
-			*/
 			
 			// テンポラリファイル名を決定
 			TCHAR tmpDir[MAX_PATH], tmpFile[MAX_PATH];
@@ -635,27 +584,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (savePNG(tmpFile, newBMP)) {
 
 				// うｐ
-				if (!uploadFile(hWnd, tmpFile)) {
-					// アップロードに失敗...
-					// エラーメッセージは既に表示されている
-
-					/*
-					TCHAR sysDir[MAX_PATH];
-					if (SUCCEEDED(StringCchCopy(sysDir, MAX_PATH, tmpFile)) &&
-						SUCCEEDED(StringCchCat(sysDir, MAX_PATH, _T(".png")))) {
-						
-						MoveFile(tmpFile, sysDir);
-						SHELLEXECUTEINFO lsw = {0};
-						
-						lsw.hwnd	= hWnd;
-						lsw.cbSize	= sizeof(SHELLEXECUTEINFO);
-						lsw.lpVerb	= _T("open");
-						lsw.lpFile	= sysDir;
-
-						ShellExecuteEx(&lsw);
-					}
-					*/
-				}
+				uploadFile(hWnd, tmpFile);
 			} else {
 				// PNG保存失敗...
 				MessageBox(hWnd, _T("PNGイメージを保存できませんでした"), szTitle, 
@@ -753,9 +682,6 @@ BOOL saveId(const WCHAR* str)
 // PNG ファイルをアップロードする.
 BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 {
-//	const TCHAR* UPLOAD_SERVER	= _T("gyazo.com");
-//	const TCHAR* UPLOAD_PATH	= _T("/upload.cgi");
-
 	const char*  sBoundary = "----BOUNDARYBOUNDARY----";		// boundary
 	const char   sCrLf[]   = { 0xd, 0xa, 0x0 };					// 改行(CR+LF)
 	const TCHAR* szHeader  = 
@@ -801,8 +727,6 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	buf << sCrLf;
 	buf << "content-disposition: form-data; name=\"imagedata\"; filename=\"data.png\"";
 	buf << sCrLf;
-	//buf << "Content-type: image/png";	// 一応
-	//buf << sCrLf;
 	buf << sCrLf;
 
 	// 本文: PNG ファイルを読み込む
