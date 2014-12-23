@@ -74,7 +74,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 				uploadFile(NULL, tmpFile);
 			} else {
 				// PNGに変換できなかった...
-				MessageBox(NULL, _T("Cannot convert this image"), szTitle, 
+				MessageBox(NULL, _T("画像を変換できませんでした"), szTitle, 
 					MB_OK | MB_ICONERROR);
 			}
 			DeleteFile(tmpFile);
@@ -658,7 +658,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 			} else {
 				// PNG保存失敗...
-				MessageBox(hWnd, _T("Cannot save png image"), szTitle, 
+				MessageBox(hWnd, _T("PNGイメージを保存できませんでした"), szTitle, 
 					MB_OK | MB_ICONERROR);
 			}
 
@@ -859,7 +859,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	HINTERNET hSession    = InternetOpen(szTitle, 
 		INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
 	if(NULL == hSession) {
-		MessageBox(hwnd, _T("Cannot configure wininet"),
+		MessageBox(hwnd, _T("WinInetを設定することができません"),
 			szTitle, MB_ICONERROR | MB_OK);
 		return FALSE;
 	}
@@ -873,12 +873,12 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		}
 	}
 
-	// 接続先
+	// 接接続を開始できません続先
 	HINTERNET hConnection = InternetConnect(hSession, 
 		lpwcUploadServer, INTERNET_DEFAULT_HTTP_PORT,
 		lpwcId, lpwcPassword, INTERNET_SERVICE_HTTP, 0, NULL);
 	if(NULL == hSession) {
-		MessageBox(hwnd, _T("Cannot initiate connection"),
+		MessageBox(hwnd, _T("接続を開始できません"),
 			szTitle, MB_ICONERROR | MB_OK);
 		return FALSE;
 	}
@@ -888,7 +888,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		_T("POST"), lpwcUploadPath, NULL,
 		NULL, NULL, dwFlags, NULL);
 	if(NULL == hSession) {
-		MessageBox(hwnd, _T("Cannot compose post request"),
+		MessageBox(hwnd, _T("POSTリクエストを構成することができません"),
 			szTitle, MB_ICONERROR | MB_OK);
 		return FALSE;
 	}
@@ -899,7 +899,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		hRequest, ua, _tcslen(ua), 
 		HTTP_ADDREQ_FLAG_ADD | HTTP_ADDREQ_FLAG_REPLACE);
 	if (FALSE == bResult) {
-		MessageBox(hwnd, _T("Cannot set user agent"),
+		MessageBox(hwnd, _T("ユーザエージェントを設定できません"),
 			szTitle, MB_ICONERROR | MB_OK);
 		return FALSE;
 	}
@@ -921,7 +921,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		if( _ttoi(resCode) != 200 ) {
 			// upload 失敗 (status error)
 			TCHAR resMessage[128];
-			wsprintf(resMessage, _T("Failed to upload (unexpected result code, under maintainance?)\r\nStatus code : %d"), _ttoi(resCode));
+			wsprintf(resMessage, _T("アップロードに失敗しました (メンテナンス中? 予期しないステータスコード)\r\nステータスコード : %d"), _ttoi(resCode));
 			MessageBox(hwnd, resMessage,
 				szTitle, MB_ICONERROR | MB_OK);
 		} else {
@@ -972,7 +972,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		}
 	} else {
 		// アップロード失敗...
-		MessageBox(hwnd, _T("Failed to upload"), szTitle, MB_ICONERROR | MB_OK);
+		MessageBox(hwnd, _T("アップロードに失敗しました"), szTitle, MB_ICONERROR | MB_OK);
 	}
 
 	return FALSE;
