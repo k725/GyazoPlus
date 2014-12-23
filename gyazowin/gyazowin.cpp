@@ -774,7 +774,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 
 	// アップロード確認
 	if (g_Settings.count(L"up_dialog") && g_Settings[L"up_dialog"] == L"true") {
-		if (MessageBox(hwnd,_T("アップロードしますか？"),_T("Question"),MB_OK|MB_ICONQUESTION|MB_YESNO) != IDYES) {
+		if (MessageBox(hwnd, _T("アップロードしますか？"), szTitle, MB_OK | MB_ICONQUESTION | MB_YESNO) != IDYES) {
 			return TRUE;
 		}
 	}
@@ -959,7 +959,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 			if (g_Settings.count(L"copy_url") && g_Settings[L"copy_url"] == L"true") {
 				setClipBoardText(result.c_str());
 				if (g_Settings.count(L"copy_dialog") && g_Settings[L"copy_dialog"] == L"true") {
-					MessageBox(hwnd,_T("クリップボードにアドレスをコピーしました"),_T("Info"),MB_OK|MB_ICONINFORMATION);
+					MessageBox(hwnd, _T("クリップボードにアドレスをコピーしました"), szTitle, MB_OK | MB_ICONINFORMATION);
 				}
 			}
 			
