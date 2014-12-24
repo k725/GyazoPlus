@@ -766,7 +766,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	std::ifstream png;
 	png.open(fileName, std::ios::binary);
 	if (png.fail()) {
-		MessageBox(hwnd, _T("PNG open failed"), szTitle, MB_ICONERROR | MB_OK);
+		MessageBox(hwnd, _T("PNGファイルを開くのに失敗しました"), szTitle, MB_ICONERROR | MB_OK);
 		png.close();
 		return FALSE;
 	}
@@ -816,7 +816,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	HINTERNET hSession = InternetOpen(_T("GyazoPlus/1.5"),
 		INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
 	if(NULL == hSession) {
-		LastErrorMessageBox(hwnd, _T("Cannot configure wininet."));
+		LastErrorMessageBox(hwnd, _T("WinInetを設定することができません"));
 		return FALSE;
 	}
 
@@ -834,7 +834,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		lpwcUploadServer, INTERNET_DEFAULT_HTTP_PORT,
 		lpwcId, lpwcPassword, INTERNET_SERVICE_HTTP, 0, NULL);
 	if(NULL == hConnection) {
-		LastErrorMessageBox(hwnd, _T("Cannot initiate connection."));
+		LastErrorMessageBox(hwnd, _T("接続を開始できません"));
 		InternetCloseHandle(hSession);
 		return FALSE;
 	}
@@ -844,7 +844,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		_T("POST"), lpwcUploadPath, NULL,
 		NULL, NULL, dwFlags, NULL);
 	if (NULL == hRequest) {
-		LastErrorMessageBox(hwnd, _T("Cannot compose post request."));
+		LastErrorMessageBox(hwnd, _T("POSTリクエストを構成することができません"));
 		InternetCloseHandle(hConnection);
 		InternetCloseHandle(hSession);
 		return FALSE;
@@ -866,7 +866,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		// status code を取得
 		if (!HttpQueryInfo(hRequest, HTTP_QUERY_STATUS_CODE, resCode, &resLen, 0))
 		{
-			LastErrorMessageBox(hwnd, _T("Cannot get status code."));
+			LastErrorMessageBox(hwnd, _T("ステータスコードを取得できません"));
 			InternetCloseHandle(hRequest);
 			InternetCloseHandle(hConnection);
 			InternetCloseHandle(hSession);
@@ -876,7 +876,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		if( _ttoi(resCode) != 200 ) {
 			// upload 失敗 (status error)
 			TCHAR errorBuf[200];
-			StringCchPrintf((LPTSTR)errorBuf, 200, TEXT("Cannot upload the image. Error %s"), resCode);
+			StringCchPrintf((LPTSTR)errorBuf, 200, TEXT("画像をアップロードすることができません エラー %s"), resCode);
 			MessageBox(hwnd, errorBuf, szTitle, MB_ICONERROR | MB_OK);
 		} else {
 			// upload succeeded
