@@ -724,6 +724,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	std::string			idStr;	// ID
 
 	LPCWSTR lpwcUploadServer;	// アップロード先サーバ
+	INTERNET_PORT ipUploadPort;	// アップロード先サーバポート
 	LPCWSTR lpwcUploadPath;		// アップロード先パス
 
 	LPCWSTR lpwcId;			// 認証用ID
@@ -789,6 +790,11 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	}else{
 		lpwcUploadServer = L"gyazo.com";
 	}
+	if (g_Settings.count(L"upload_port")) {
+		ipUploadPort = _wtoi(g_Settings[L"upload_port"].c_str());
+	}else{
+		ipUploadPort = 80;
+	}
 	if (g_Settings.count(L"upload_path")) {
 		lpwcUploadPath = g_Settings[L"upload_path"].c_str();
 	}else{
@@ -813,7 +819,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	}
 
 	// WinInet を準備 (proxy は 規定の設定を利用)
-	HINTERNET hSession = InternetOpen(_T("GyazoPlus/1.5"),
+	HINTERNET hSession = InternetOpen(_T("GyazoPlus/1.6"),
 		INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
 	if(NULL == hSession) {
 		LastErrorMessageBox(hwnd, _T("WinInetを設定することができません"));
@@ -831,7 +837,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 
 	// 接続先
 	HINTERNET hConnection = InternetConnect(hSession, 
-		lpwcUploadServer, INTERNET_DEFAULT_HTTP_PORT,
+		lpwcUploadServer, ipUploadPort,
 		lpwcId, lpwcPassword, INTERNET_SERVICE_HTTP, 0, NULL);
 	if(NULL == hConnection) {
 		LastErrorMessageBox(hwnd, _T("接続を開始できません"));
