@@ -9,9 +9,9 @@
 
 // グローバル変数:
 HINSTANCE hInst;							// 現在のインターフェイス
-TCHAR *szTitle			= _T("GyazoPlus");	// タイトル バーのテキスト
-TCHAR *szWindowClass	= _T("GYAZOPLUS");	// メイン ウィンドウ クラス名
-TCHAR *szWindowClassL	= _T("GYAZOPLUSL");	// レイヤー ウィンドウ クラス名
+TCHAR *szTitle			= L"GyazoPlus";	// タイトル バーのテキスト
+TCHAR *szWindowClass	= L"GYAZOPLUS";	// メイン ウィンドウ クラス名
+TCHAR *szWindowClassL	= L"GYAZOPLUSL";	// レイヤー ウィンドウ クラス名
 HWND hLayerWnd;
 
 int ofX, ofY;	// 画面オフセット
@@ -68,14 +68,14 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 			// PNG 形式に変換
 			TCHAR tmpDir[MAX_PATH], tmpFile[MAX_PATH];
 			GetTempPath(MAX_PATH, tmpDir);
-			GetTempFileName(tmpDir, _T("gya"), 0, tmpFile);
+			GetTempFileName(tmpDir, L"gya", 0, tmpFile);
 			
 			if (convertPNG(tmpFile, __targv[1])) {
 				//アップロード
 				uploadFile(NULL, tmpFile);
 			} else {
 				// PNGに変換できなかった...
-				MessageBox(NULL, _T("画像を変換できませんでした"), szTitle, 
+				MessageBox(NULL, L"画像を変換できませんでした", szTitle, 
 					MB_OK | MB_ICONERROR);
 			}
 			DeleteFile(tmpFile);
@@ -121,7 +121,7 @@ std::map<std::wstring, std::wstring> loadSettings(LPCWSTR fileName, LPCWSTR sect
 	lpwcCurrent = wcSettings;
 	while (*lpwcCurrent) {
 		len = wcslen(lpwcCurrent);
-		lpwcString = wcstok_s(lpwcCurrent, _T("="), &lpwcContext);
+		lpwcString = wcstok_s(lpwcCurrent, L"=", &lpwcContext);
 		key = std::wstring(lpwcString);
 		value = std::wstring(lpwcString + wcslen(lpwcString) + 1);
 		settings[key] = value;
@@ -139,7 +139,7 @@ BOOL isPng(LPCTSTR fileName)
 	
 	FILE *fp = NULL;
 	
-	if (0 != _tfopen_s(&fp, fileName, _T("rb")) ||
+	if (0 != _tfopen_s(&fp, fileName, L"rb") ||
 		8 != fread(readHead, 1, 8, fp)) {
 		// ファイルが読めない	
 		return FALSE;
@@ -580,7 +580,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			// テンポラリファイル名を決定
 			TCHAR tmpDir[MAX_PATH], tmpFile[MAX_PATH];
 			GetTempPath(MAX_PATH, tmpDir);
-			GetTempFileName(tmpDir, _T("gya"), 0, tmpFile);
+			GetTempFileName(tmpDir, L"gya", 0, tmpFile);
 			
 			if (savePNG(tmpFile, newBMP)) {
 
@@ -588,7 +588,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				uploadFile(hWnd, tmpFile);
 			} else {
 				// PNG保存失敗...
-				MessageBox(hWnd, _T("PNGイメージを保存できませんでした"), szTitle, 
+				MessageBox(hWnd, L"PNGイメージを保存できませんでした", szTitle, 
 					MB_OK | MB_ICONERROR);
 			}
 
@@ -655,7 +655,7 @@ VOID execUrl(const char* str)
 	// open コマンドを実行
 	SHELLEXECUTEINFO lsw = {0};
 	lsw.cbSize = sizeof(SHELLEXECUTEINFO);
-	lsw.lpVerb = _T("open");
+	lsw.lpVerb = L"open";
 	lsw.lpFile = wcUrl;
 
 	ShellExecuteEx(&lsw);
@@ -693,7 +693,7 @@ void LastErrorMessageBox(HWND hwnd, LPTSTR lpszError)
 		FORMAT_MESSAGE_FROM_SYSTEM |
 		FORMAT_MESSAGE_FROM_HMODULE |
 		FORMAT_MESSAGE_IGNORE_INSERTS,
-		GetModuleHandle(_T("wininet.dll")),
+		GetModuleHandle(L"wininet.dll"),
 		dw,
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPTSTR)&lpMsgBuf,
@@ -704,7 +704,7 @@ void LastErrorMessageBox(HWND hwnd, LPTSTR lpszError)
 		(lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszError) + 40) * sizeof(TCHAR));
 	StringCchPrintf((LPTSTR)lpDisplayBuf,
 		LocalSize(lpDisplayBuf) / sizeof(TCHAR),
-		TEXT("%s\n\nError %d: %s"),
+		L"%s\n\nError %d: %s",
 		lpszError, dw, lpMsgBuf);
 	MessageBox(hwnd, (LPCTSTR)lpDisplayBuf, szTitle, MB_OK | MB_ICONERROR);
 
@@ -718,7 +718,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	const char*  sBoundary = "----BOUNDARYBOUNDARY----";		// boundary
 	const char   sCrLf[]   = { 0xd, 0xa, 0x0 };					// 改行(CR+LF)
 	const TCHAR* szHeader  = 
-		_T("Content-type: multipart/form-data; boundary=----BOUNDARYBOUNDARY----");
+		L"Content-type: multipart/form-data; boundary=----BOUNDARYBOUNDARY----";
 
 	std::ostringstream	buf;	// 送信メッセージ
 	std::string			idStr;	// ID
@@ -734,7 +734,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 
 	// アップロード確認
 	if (g_Settings.count(L"up_dialog") && g_Settings[L"up_dialog"] == L"true") {
-		if (MessageBox(hwnd, _T("アップロードしますか？"), szTitle, MB_OK | MB_ICONQUESTION | MB_YESNO) != IDYES) {
+		if (MessageBox(hwnd, L"アップロードしますか？", szTitle, MB_OK | MB_ICONQUESTION | MB_YESNO) != IDYES) {
 			return TRUE;
 		}
 	}
@@ -767,7 +767,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	std::ifstream png;
 	png.open(fileName, std::ios::binary);
 	if (png.fail()) {
-		MessageBox(hwnd, _T("PNGファイルを開くのに失敗しました"), szTitle, MB_ICONERROR | MB_OK);
+		MessageBox(hwnd, L"PNGファイルを開くのに失敗しました", szTitle, MB_ICONERROR | MB_OK);
 		png.close();
 		return FALSE;
 	}
@@ -819,10 +819,10 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	}
 
 	// WinInet を準備 (proxy は 規定の設定を利用)
-	HINTERNET hSession = InternetOpen(_T("GyazoPlus/1.6"),
+	HINTERNET hSession = InternetOpen(L"GyazoPlus/1.6",
 		INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
 	if(NULL == hSession) {
-		LastErrorMessageBox(hwnd, _T("WinInetを設定することができません"));
+		LastErrorMessageBox(hwnd, L"WinInetを設定することができません");
 		return FALSE;
 	}
 
@@ -840,17 +840,17 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		lpwcUploadServer, ipUploadPort,
 		lpwcId, lpwcPassword, INTERNET_SERVICE_HTTP, 0, NULL);
 	if(NULL == hConnection) {
-		LastErrorMessageBox(hwnd, _T("接続を開始できません"));
+		LastErrorMessageBox(hwnd, L"接続を開始できません");
 		InternetCloseHandle(hSession);
 		return FALSE;
 	}
 
 	// 要求先の設定
 	HINTERNET hRequest    = HttpOpenRequest(hConnection,
-		_T("POST"), lpwcUploadPath, NULL,
+		L"POST", lpwcUploadPath, NULL,
 		NULL, NULL, dwFlags, NULL);
 	if (NULL == hRequest) {
-		LastErrorMessageBox(hwnd, _T("POSTリクエストを構成することができません"));
+		LastErrorMessageBox(hwnd, L"POSTリクエストを構成することができません");
 		InternetCloseHandle(hConnection);
 		InternetCloseHandle(hSession);
 		return FALSE;
@@ -872,7 +872,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		// status code を取得
 		if (!HttpQueryInfo(hRequest, HTTP_QUERY_STATUS_CODE, resCode, &resLen, 0))
 		{
-			LastErrorMessageBox(hwnd, _T("ステータスコードを取得できません"));
+			LastErrorMessageBox(hwnd, L"ステータスコードを取得できません");
 			InternetCloseHandle(hRequest);
 			InternetCloseHandle(hConnection);
 			InternetCloseHandle(hSession);
@@ -882,7 +882,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		if( _ttoi(resCode) != 200 ) {
 			// upload 失敗 (status error)
 			TCHAR errorBuf[200];
-			StringCchPrintf((LPTSTR)errorBuf, 200, TEXT("画像をアップロードすることができません エラー %s"), resCode);
+			StringCchPrintf((LPTSTR)errorBuf, 200, L"画像をアップロードすることができません エラー %s", resCode);
 			MessageBox(hwnd, errorBuf, szTitle, MB_ICONERROR | MB_OK);
 		} else {
 			// upload succeeded
@@ -892,7 +892,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 			TCHAR newid[100];
 			
 			memset(newid, 0, idLen*sizeof(TCHAR));	
-			_tcscpy_s(newid, _T("X-Gyazo-Id"));
+			_tcscpy_s(newid, L"X-Gyazo-Id");
 
 			HttpQueryInfo(hRequest, HTTP_QUERY_CUSTOM, newid, &idLen, 0);
 			if (GetLastError() != ERROR_HTTP_HEADER_NOT_FOUND && idLen != 0) {
@@ -919,7 +919,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 			if (g_Settings.count(L"copy_url") && g_Settings[L"copy_url"] == L"true") {
 				setClipBoardText(result.c_str());
 				if (g_Settings.count(L"copy_dialog") && g_Settings[L"copy_dialog"] == L"true") {
-					MessageBox(hwnd, _T("クリップボードにアドレスをコピーしました"), szTitle, MB_OK | MB_ICONINFORMATION);
+					MessageBox(hwnd, L"クリップボードにアドレスをコピーしました", szTitle, MB_OK | MB_ICONINFORMATION);
 				}
 			}
 			
@@ -934,7 +934,7 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 		}
 	} else {
 		// アップロード失敗...
-		MessageBox(hwnd, _T("アップロードに失敗しました"), szTitle, MB_ICONERROR | MB_OK);
+		MessageBox(hwnd, L"アップロードに失敗しました", szTitle, MB_ICONERROR | MB_OK);
 	}
 
 	// ハンドルクローズ
