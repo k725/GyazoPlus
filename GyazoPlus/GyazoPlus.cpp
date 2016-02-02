@@ -155,11 +155,15 @@ BOOL isPng(LPCTSTR fileName)
 	fclose(fp);
 	
 	// compare
-	for (unsigned int i=0;i<8;i++)
-		if (pngHead[i] != readHead[i]) return FALSE;
+	for (unsigned int i = 0; i < 8; i++)
+	{
+		if (pngHead[i] != readHead[i])
+		{
+			return FALSE;
+		}
+	}
 
 	return TRUE;
-
 }
 
 // ウィンドウクラスを登録
@@ -226,8 +230,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		NULL, NULL, hInstance, NULL);
 
 	// 作れなかった...?
-	if (!hWnd) return FALSE;
-	
+	if (!hWnd)
+	{
+		return FALSE;
+	}
+
 	// 全画面を覆う
 	MoveWindow(hWnd, x, y, w, h, FALSE);
 	
@@ -237,7 +244,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 	// ESCキー検知タイマー
 	SetTimer(hWnd, 1, 100, NULL);
-
 
 	// レイヤーウィンドウの作成
 	hLayerWnd = CreateWindowEx(
@@ -250,7 +256,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 		100, 100, 300, 300,
 		hWnd, NULL, hInstance, NULL);
 
-    SetLayeredWindowAttributes(hLayerWnd, RGB(255, 0, 0), 100, LWA_COLORKEY|LWA_ALPHA);
+	SetLayeredWindowAttributes(hLayerWnd, RGB(255, 0, 0), 100, LWA_COLORKEY|LWA_ALPHA);
 
 	return TRUE;
 }
@@ -259,33 +265,37 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 // Cited from MSDN Library: Retrieving the Class Identifier for an Encoder
 int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 {
-   UINT  num = 0;          // number of image encoders
-   UINT  size = 0;         // size of the image encoder array in bytes
+	UINT  num = 0;          // number of image encoders
+	UINT  size = 0;         // size of the image encoder array in bytes
 
-   ImageCodecInfo* pImageCodecInfo = NULL;
+	ImageCodecInfo* pImageCodecInfo = NULL;
 
-   GetImageEncodersSize(&num, &size);
-   if (size == 0)
-      return -1;  // Failure
+	GetImageEncodersSize(&num, &size);
+	if (size == 0)
+	{
+		return -1; // Failure
+	}
+	
+	pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
+	if (pImageCodecInfo == NULL)
+	{
+		return -1; // Failure
+	}
 
-   pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
-   if (pImageCodecInfo == NULL)
-      return -1;  // Failure
+	GetImageEncoders(num, size, pImageCodecInfo);
 
-   GetImageEncoders(num, size, pImageCodecInfo);
+	for (UINT j = 0; j < num; ++j)
+	{
+		if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0)
+		{
+			*pClsid = pImageCodecInfo[j].Clsid;
+			free(pImageCodecInfo);
+			return j; // Success
+		}
+	}
 
-   for (UINT j = 0; j < num; ++j)
-   {
-      if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0)
-      {
-         *pClsid = pImageCodecInfo[j].Clsid;
-         free(pImageCodecInfo);
-         return j;  // Success
-      }    
-   }
-
-   free(pImageCodecInfo);
-   return -1;  // Failure
+	free(pImageCodecInfo);
+	return -1; // Failure
 }
 
 // ラバーバンドを描画.
@@ -309,7 +319,6 @@ VOID drawRubberband(HDC hdc, LPRECT newRect, BOOL erase)
 	{
 		// レイヤーウィンドウを隠す
 		ShowWindow(hLayerWnd, SW_HIDE);
-		
 	}
 
 	// 座標チェック
@@ -904,9 +913,9 @@ BOOL uploadFile(HWND hwnd, LPCTSTR fileName)
 	BOOL bSuccess = FALSE;
 	if (HttpSendRequest(hRequest,
                     szHeader,
-					lstrlen(szHeader),
+                    lstrlen(szHeader),
                     (LPVOID)oMsg.c_str(),
-					(DWORD) oMsg.length()))
+                    (DWORD) oMsg.length()))
 	{
 		// 要求は成功
 		
